@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">ListBoxer Mobile</string>
+
+    <!-- Toolbar -->
+    <string name="add_toolbar_button">New</string>
+    <string name="save_toolbar_button">Save</string>
+    <string name="open_toolbar_button">Open</string>
+    <string name="more_toolbar_button">More</string>
+    <string name="sort_toolbar_button">Sort</string>
+    <string name="mode_toolbar_button">Mode</string>
+    <string name="stat_toolbar_button">Stat</string>
+    <string name="clear_all_toolbar_button">Clear all</string>
+
+
+</resources>
