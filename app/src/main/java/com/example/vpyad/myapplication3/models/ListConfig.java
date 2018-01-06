@@ -8,12 +8,20 @@ import java.util.ArrayList;
  * Created by vpyad on 03-Jan-18.
  */
 
-public class ListConfig implements Serializable
-{
+public class ListConfig implements Serializable {
+
+    public ListConfig(){}
+
+    public ListConfig(ListConfig listConfig) {
+        this.name = listConfig.getName();
+        this.mode = listConfig.getMode();
+        this.sort = listConfig.getSort();
+        this.list = listConfig.getList();
+    }
 
     private String name = "DefaultName";
-    private int mode = 3; // 1 - numeric, 2 - alphabetic, 3 - mixed
-    private int sort = 1; // 1 - no sorting, 2 - acs, 3 - desc
+    private int mode = 2; // 0 - numeric, 1 - alphabetic, 2 - mixed
+    private int sort = 0; // 0 - no sorting, 1 - acs, 2 - desc
     private ArrayList<String> list;
 
     public void setMode(int mode) {

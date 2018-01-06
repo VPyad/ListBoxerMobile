@@ -3,16 +3,22 @@ package com.example.vpyad.myapplication3;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.res.TypedArrayUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.vpyad.myapplication3.helpers.StorageHelper;
 import com.example.vpyad.myapplication3.models.ListConfig;
+import com.example.vpyad.myapplication3.providers.DialogProvider;
 import com.example.vpyad.myapplication3.providers.ListConfigProvider;
 import com.github.angads25.filepicker.controller.DialogSelectionListener;
 import com.github.angads25.filepicker.model.DialogConfigs;
@@ -21,6 +27,8 @@ import com.github.angads25.filepicker.view.FilePickerDialog;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -99,7 +107,10 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Stat clicked", Toast.LENGTH_LONG).show();
                 return true;
             case R.id.action_clear_all:
-                Toast.makeText(getApplicationContext(), "Clear all clicked", Toast.LENGTH_LONG).show();
+                //showModeDialog2();
+                //showSortDialog();
+                showModeDialog();
+                //Toast.makeText(getApplicationContext(), "Clear all clicked", Toast.LENGTH_LONG).show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -206,5 +217,64 @@ public class MainActivity extends AppCompatActivity {
         });
 
         dialog.show();
+    }
+
+    private int fuckIt = 5;
+
+    private void showModeDialog() {
+        Collection<String> modes = Arrays.asList("numeric", "alphabetic");
+
+        int damn = 7;
+
+        MaterialDialog mDialog = new MaterialDialog.Builder(this)
+                .title(getString(R.string.mode_dialog_title))
+                .items(modes)
+                .autoDismiss(true)
+                .positiveText("Ok")
+                .negativeText("Cancel")
+                .alwaysCallMultiChoiceCallback()
+                .itemsCallbackMultiChoice(new Integer[]{0}, new MaterialDialog.ListCallbackMultiChoice() {
+                    @Override
+                    public boolean onSelection(MaterialDialog dialog, Integer[] which, CharSequence[] text) {
+                        boolean allowSelectionChange = which.length >= 1;
+                        return allowSelectionChange;
+                    }
+                })
+                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+
+                    }
+                })
+                .show();
+
+        Integer[] selected = mDialog.getSelectedIndices();
+    }
+
+    private void showModeDialog2() {
+        DialogProvider dialogProvider = new DialogProvider(this);
+
+        ListConfig listConfig = new ListConfig();
+        listConfig.setMode(0);
+
+        ListConfig resListConfig = dialogProvider.showModeDialog(listConfig);
+        Toast.makeText(this, resListConfig.getMode(), Toast.LENGTH_SHORT).show();
+    }
+
+    private void showSortDialog() {
+        Collection<String> sorts = Arrays.asList("no sort", "asc", "desc");
+
+        new MaterialDialog.Builder(this)
+                .title("Choose sorting")
+                .items(sorts)
+                .itemsCallbackSingleChoice(1, new MaterialDialog.ListCallbackSingleChoice() {
+                    @Override
+                    public boolean onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
+                        return true;
+                    }
+                })
+                .positiveText("Ok")
+                .positiveText("Cancel")
+                .show();
     }
 }
