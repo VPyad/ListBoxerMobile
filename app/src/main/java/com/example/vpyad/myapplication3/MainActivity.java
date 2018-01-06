@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.res.TypedArrayUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -20,6 +19,7 @@ import com.example.vpyad.myapplication3.helpers.StorageHelper;
 import com.example.vpyad.myapplication3.models.ListConfig;
 import com.example.vpyad.myapplication3.providers.DialogProvider;
 import com.example.vpyad.myapplication3.providers.ListConfigProvider;
+import com.example.vpyad.myapplication3.providers.IDialogProviderCallback;
 import com.github.angads25.filepicker.controller.DialogSelectionListener;
 import com.github.angads25.filepicker.model.DialogConfigs;
 import com.github.angads25.filepicker.model.DialogProperties;
@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements IDialogProviderCallback {
 
     private static final int FILE_SELECT_CODE = 0;
     private static final int DIR_SELECT_CODE = 1;
@@ -107,9 +107,11 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Stat clicked", Toast.LENGTH_LONG).show();
                 return true;
             case R.id.action_clear_all:
+                showYesNoDialog();
+                //showSortDialog2();
                 //showModeDialog2();
                 //showSortDialog();
-                showModeDialog();
+                //showModeDialog();
                 //Toast.makeText(getApplicationContext(), "Clear all clicked", Toast.LENGTH_LONG).show();
                 return true;
             default:
@@ -252,13 +254,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showModeDialog2() {
-        DialogProvider dialogProvider = new DialogProvider(this);
+        DialogProvider dialogProvider = new DialogProvider(this, this);
 
         ListConfig listConfig = new ListConfig();
         listConfig.setMode(0);
 
-        ListConfig resListConfig = dialogProvider.showModeDialog(listConfig);
-        Toast.makeText(this, resListConfig.getMode(), Toast.LENGTH_SHORT).show();
+        dialogProvider.showModeDialog(listConfig);
     }
 
     private void showSortDialog() {
@@ -276,5 +277,31 @@ public class MainActivity extends AppCompatActivity {
                 .positiveText("Ok")
                 .positiveText("Cancel")
                 .show();
+    }
+
+    private void showSortDialog2(){
+        DialogProvider dialogProvider = new DialogProvider(this, this);
+
+        ListConfig listConfig = new ListConfig();
+        listConfig.setSort(1);
+
+        dialogProvider.showSortDialog(listConfig);
+
+    }
+
+    private void showYesNoDialog(){
+        DialogProvider dialogProvider = new DialogProvider(this, this);
+
+        dialogProvider.showDeleteItemDialog();
+    }
+
+    @Override
+    public void onListConfigCallback(ListConfig res) {
+        Toast.makeText(this, "1213", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onYesNoCallback(Integer res) {
+
     }
 }
