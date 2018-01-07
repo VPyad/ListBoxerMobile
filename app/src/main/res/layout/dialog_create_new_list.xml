@@ -1,20 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_centerHorizontal="true"
-    android:padding="20dp">
-
-    <EditText
-        android:id="@+id/new_name"
-        android:layout_weight="1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    android:orientation="vertical">
 
     <TextView
-        android:text=".mp4"
-        android:id="@+id/textView"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="@string/new_list_name_textview_header"
+        android:textColor="#80000000" />
+
+    <EditText
+        android:id="@+id/create_new_list_name_textedit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:inputType="textAutoCorrect"
+        android:textColor="#000000" />
+
+    <CheckBox
+        android:id="@+id/numeric_mode_ckeckbox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:text="@string/mode_numeric"
+        android:textColor="#000000"
+        android:checked="true"
+        />
+
+    <CheckBox
+        android:id="@+id/alphabetic_mode_ckeckbox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:text="@string/mode_alphabetic"
+        android:textColor="#000000"
+        android:checked="true"
+        />
 
 </LinearLayout>

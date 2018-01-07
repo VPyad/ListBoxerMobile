@@ -7,7 +7,7 @@ import com.example.vpyad.myapplication3.models.ListConfig;
  */
 
 public interface IDialogProviderCallback {
-    public void onListConfigCallback(ListConfig res);
+    public void onListConfigCallback(ListConfig res, Integer code);
 
     public void onYesNoCallback(Integer res);
 }

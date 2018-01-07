@@ -2,11 +2,17 @@ package com.example.vpyad.myapplication3.providers;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.vpyad.myapplication3.R;
+import com.example.vpyad.myapplication3.helpers.StringValidatorHelper;
 import com.example.vpyad.myapplication3.models.ListConfig;
 
 import java.util.Arrays;
@@ -22,13 +28,16 @@ public class DialogProvider {
     public static final Integer SAVE_FILE_CODE = 2;
     public static final Integer DELETE_ITEM_CODE = 3;
     public static final Integer CLEAR_ALL_CODE = 4;
+    public static final Integer APPLY_MODE_CODE = 5;
+    public static final Integer APPLY_SORT_CODE = 6;
+    public static final Integer CREATE_NEW_LIST_CODE = 7;
 
     private Context context;
-    private final IDialogProviderCallback callbackOnListConfigDialog;
+    private final IDialogProviderCallback iDialogProviderCallback;
 
-    public DialogProvider(Context context, final IDialogProviderCallback callbackOnListConfigDialog) {
+    public DialogProvider(Context context, final IDialogProviderCallback iDialogProviderCallback) {
         this.context = context;
-        this.callbackOnListConfigDialog = callbackOnListConfigDialog;
+        this.iDialogProviderCallback = iDialogProviderCallback;
     }
 
     public void showModeDialog(ListConfig listConfig) {
@@ -71,7 +80,7 @@ public class DialogProvider {
                                 result.setMode(selected[0]);
                             }
 
-                            callbackOnListConfigDialog.onListConfigCallback(result);
+                            iDialogProviderCallback.onListConfigCallback(result, APPLY_MODE_CODE);
                         }
                     }
                 })
@@ -100,7 +109,7 @@ public class DialogProvider {
                             ListConfig result = new ListConfig(innerListConfig);
                             result.setSort(dialog.getSelectedIndex());
 
-                            callbackOnListConfigDialog.onListConfigCallback(result);
+                            iDialogProviderCallback.onListConfigCallback(result, APPLY_SORT_CODE);
                         }
                     }
                 })
@@ -116,7 +125,7 @@ public class DialogProvider {
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        callbackOnListConfigDialog.onYesNoCallback(DialogProvider.OPEN_FILE_CODE);
+                        iDialogProviderCallback.onYesNoCallback(DialogProvider.OPEN_FILE_CODE);
                     }
                 })
                 .show();
@@ -131,7 +140,7 @@ public class DialogProvider {
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        callbackOnListConfigDialog.onYesNoCallback(DialogProvider.SAVE_FILE_CODE);
+                        iDialogProviderCallback.onYesNoCallback(DialogProvider.SAVE_FILE_CODE);
                     }
                 })
                 .show();
@@ -146,7 +155,7 @@ public class DialogProvider {
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        callbackOnListConfigDialog.onYesNoCallback(DialogProvider.CLEAR_ALL_CODE);
+                        iDialogProviderCallback.onYesNoCallback(DialogProvider.CLEAR_ALL_CODE);
                     }
                 })
                 .show();
@@ -161,9 +170,121 @@ public class DialogProvider {
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        callbackOnListConfigDialog.onYesNoCallback(DialogProvider.DELETE_ITEM_CODE);
+                        iDialogProviderCallback.onYesNoCallback(DialogProvider.DELETE_ITEM_CODE);
                     }
                 })
+                .show();
+    }
+
+    public void showCreateNewListDialog() {
+        final View positiveAction;
+        final EditText nameInput;
+        final CheckBox numericCheckbox, alphabeticCheckbox;
+
+        MaterialDialog dialog =
+                new MaterialDialog.Builder(context)
+                        .title(R.string.new_list_dialog_title)
+                        .customView(R.layout.dialog_create_new_list, true)
+                        .positiveText(context.getString(R.string.dialog_positive_button))
+                        .negativeText(context.getString(R.string.dialog_negative_button))
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                ListConfig listConfig = new ListConfig();
+
+                                String name = ((EditText) dialog.getCustomView().findViewById(R.id.create_new_list_name_textedit)).getText().toString();
+                                boolean isAlphabetic = ((CheckBox) dialog.getCustomView().findViewById(R.id.alphabetic_mode_ckeckbox)).isChecked();
+                                boolean isNumeric = ((CheckBox) dialog.getCustomView().findViewById(R.id.numeric_mode_ckeckbox)).isChecked();
+
+                                listConfig.setName(name);
+
+                                if (isAlphabetic && isNumeric) {
+                                    listConfig.setMode(2);
+                                } else {
+                                    if (isAlphabetic) {
+                                        listConfig.setMode(1);
+                                    } else {
+                                        listConfig.setMode(0);
+                                    }
+                                }
+
+                                iDialogProviderCallback.onListConfigCallback(listConfig, CREATE_NEW_LIST_CODE);
+
+                                dialog.dismiss();
+                            }
+                        })
+                        .build();
+
+        positiveAction = dialog.getActionButton(DialogAction.POSITIVE);
+        numericCheckbox = dialog.getCustomView().findViewById((R.id.numeric_mode_ckeckbox));
+        alphabeticCheckbox = dialog.getCustomView().findViewById(R.id.alphabetic_mode_ckeckbox);
+        nameInput = dialog.getCustomView().findViewById(R.id.create_new_list_name_textedit);
+
+        nameInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                boolean lengthNotZero = charSequence.toString().trim().length() > 0;
+                if (lengthNotZero && StringValidatorHelper.filenameLegal(charSequence.toString())) {
+                    positiveAction.setEnabled(true);
+                } else {
+                    positiveAction.setEnabled(false);
+                    //TODO Show toast
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
+        numericCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (!b && !alphabeticCheckbox.isChecked()) {
+                    positiveAction.setEnabled(false);
+                } else {
+                    positiveAction.setEnabled(true);
+                }
+            }
+        });
+
+        alphabeticCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (!b && !numericCheckbox.isChecked()) {
+                    positiveAction.setEnabled(false);
+                } else {
+                    positiveAction.setEnabled(true);
+                }
+            }
+        });
+
+        positiveAction.setEnabled(false);
+
+        dialog.show();
+    }
+
+    public void showStatsDialog(int allItemsCount, int displayedItemsCount){
+        StringBuilder sb = new StringBuilder();
+        sb.append(context.getString(R.string.stat_dialog_all_items))
+                .append(": ")
+                .append(String.valueOf(allItemsCount))
+                .append("\n")
+                .append(context.getString(R.string.stat_dialog_displayed_items))
+                .append(": ")
+                .append(String.valueOf(displayedItemsCount));
+
+        new MaterialDialog.Builder(context)
+                .title(context.getString(R.string.stat_dialog_title))
+                .content(sb.toString())
+                .positiveText(context.getString(R.string.dialog_positive_button))
+                .negativeText(context.getString(R.string.dialog_negative_button))
                 .show();
     }
 }

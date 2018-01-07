@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.vpyad.myapplication3.helpers.StorageHelper;
+import com.example.vpyad.myapplication3.helpers.StringValidatorHelper;
 import com.example.vpyad.myapplication3.models.ListConfig;
 import com.example.vpyad.myapplication3.providers.DialogProvider;
 import com.example.vpyad.myapplication3.providers.ListConfigProvider;
@@ -107,7 +108,9 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
                 Toast.makeText(getApplicationContext(), "Stat clicked", Toast.LENGTH_LONG).show();
                 return true;
             case R.id.action_clear_all:
-                showYesNoDialog();
+                showStatDialog();
+                //showCreateNewListDialog();
+                //showYesNoDialog();
                 //showSortDialog2();
                 //showModeDialog2();
                 //showSortDialog();
@@ -279,7 +282,7 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
                 .show();
     }
 
-    private void showSortDialog2(){
+    private void showSortDialog2() {
         DialogProvider dialogProvider = new DialogProvider(this, this);
 
         ListConfig listConfig = new ListConfig();
@@ -289,15 +292,26 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
 
     }
 
-    private void showYesNoDialog(){
+    private void showYesNoDialog() {
         DialogProvider dialogProvider = new DialogProvider(this, this);
 
         dialogProvider.showDeleteItemDialog();
     }
 
+    private void showCreateNewListDialog() {
+        DialogProvider dialogProvider = new DialogProvider(this, this);
+
+        dialogProvider.showCreateNewListDialog();
+    }
+
+    private void showStatDialog() {
+        DialogProvider dialogProvider = new DialogProvider(this, this);
+
+        dialogProvider.showStatsDialog(10, 7);
+    }
+
     @Override
-    public void onListConfigCallback(ListConfig res) {
-        Toast.makeText(this, "1213", Toast.LENGTH_SHORT).show();
+    public void onListConfigCallback(ListConfig res, Integer code) {
     }
 
     @Override

@@ -15,6 +15,10 @@
     <string name="dialog_positive_button">ОК</string>
     <string name="dialog_negative_button">Отмена</string>
 
+    <!-- New list Dialog -->
+    <string name="new_list_name_textview_header">Название</string>
+    <string name="new_list_dialog_title">Создание нового спсика</string>
+
     <!-- Mode dialog -->
     <string name="mode_dialog_title">Выбирите режим</string>
     <string name="mode_numeric">Цифровой режим</string>
@@ -45,5 +49,10 @@
     <!-- Remove item exit dialog -->
     <string name="remove_item_dialog_title">Удаление элемента</string>
     <string name="remove_item_dialog_message">Вы действительно хотите удалить текущий элемент?</string>
+
+    <!-- Stat dialog -->
+    <string name="stat_dialog_title">Статистика</string>
+    <string name="stat_dialog_all_items">Количество элементов в списке</string>
+    <string name="stat_dialog_displayed_items">Количество отображаемых элементов</string>
 
 </resources>
