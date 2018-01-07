@@ -19,7 +19,7 @@ public class ListConfig implements Serializable {
         this.list = listConfig.getList();
     }
 
-    private String name = "DefaultName";
+    private String name = "";
     private int mode = 2; // 0 - numeric, 1 - alphabetic, 2 - mixed
     private int sort = 0; // 0 - no sorting, 1 - acs, 2 - desc
     private ArrayList<String> list;

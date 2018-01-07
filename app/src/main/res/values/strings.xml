@@ -55,4 +55,13 @@
     <string name="stat_dialog_all_items">Количество элементов в списке</string>
     <string name="stat_dialog_displayed_items">Количество отображаемых элементов</string>
 
+    <!-- File chooser dialog -->
+    <string name="file_chooser_dialog_title">Выбирите файл</string>
+
+    <!-- Toasts -->
+    <string name="no_write_permission_text">Нет доступа на запись. Активируйте в настроках</string>
+    <string name="save_completed_text">Список сохранен</string>
+    <string name="save_failed_text">Во время сохранения списка произошла ошибка</string>
+    <string name="open_failed_text">Во время открытия списка произошла ошибка</string>
+    <string name="invalid_list_name_text">Неверное название списка</string>
 </resources>

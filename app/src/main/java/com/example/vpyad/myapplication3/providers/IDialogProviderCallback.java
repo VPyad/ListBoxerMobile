@@ -10,4 +10,6 @@ public interface IDialogProviderCallback {
     public void onListConfigCallback(ListConfig res, Integer code);
 
     public void onYesNoCallback(Integer res);
+
+    public void onFileChooserCallback(String path, Integer code);
 }

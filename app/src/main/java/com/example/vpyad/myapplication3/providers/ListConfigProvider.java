@@ -3,6 +3,7 @@ package com.example.vpyad.myapplication3.providers;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.vpyad.myapplication3.helpers.StorageHelper;
 import com.example.vpyad.myapplication3.models.ListConfig;
 
 import java.io.File;
@@ -10,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 
 /**
  * Created by vpyad on 03-Jan-18.
@@ -38,6 +40,7 @@ public class ListConfigProvider {
 
     public static boolean setListConfigToDir(ListConfig config, String path) {
         path += "/" + config.getName();
+        // TODO check if file with this name is existing
         return saveObject(config, path);
     }
 
@@ -70,5 +73,25 @@ public class ListConfigProvider {
         }
 
         return null;
+    }
+
+    public static ListConfig getListConfig(String path, Context context) {
+        if (path == "") {
+            return new ListConfig();
+        } else if (path == StorageHelper.getChacheDirPath(context)) {
+            return getListConfigFromCache(path);
+        } else {
+            return getListConfigFromDir(path);
+        }
+    }
+
+    public static boolean hasUnsavedData(String pathToSaved, ListConfig actualListConfig, Context context) {
+        ListConfig savedListConfig = getListConfig(pathToSaved, context);
+
+        if (savedListConfig == null) {
+            return false;
+        } else {
+            return savedListConfig.getList().equals(actualListConfig.getList());
+        }
     }
 }

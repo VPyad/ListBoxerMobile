@@ -8,13 +8,20 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.example.vpyad.myapplication3.MainActivity;
 import com.example.vpyad.myapplication3.R;
 import com.example.vpyad.myapplication3.helpers.StringValidatorHelper;
 import com.example.vpyad.myapplication3.models.ListConfig;
+import com.github.angads25.filepicker.controller.DialogSelectionListener;
+import com.github.angads25.filepicker.model.DialogConfigs;
+import com.github.angads25.filepicker.model.DialogProperties;
+import com.github.angads25.filepicker.view.FilePickerDialog;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -24,13 +31,14 @@ import java.util.Collection;
 
 public class DialogProvider {
 
-    public static final Integer OPEN_FILE_CODE = 1;
-    public static final Integer SAVE_FILE_CODE = 2;
-    public static final Integer DELETE_ITEM_CODE = 3;
-    public static final Integer CLEAR_ALL_CODE = 4;
-    public static final Integer APPLY_MODE_CODE = 5;
-    public static final Integer APPLY_SORT_CODE = 6;
-    public static final Integer CREATE_NEW_LIST_CODE = 7;
+    public static final int OPEN_FILE_CODE = 1;
+    public static final int SAVE_FILE_CODE = 2;
+    public static final int DELETE_ITEM_CODE = 3;
+    public static final int CLEAR_ALL_CODE = 4;
+    public static final int APPLY_MODE_CODE = 5;
+    public static final int APPLY_SORT_CODE = 6;
+    public static final int CREATE_NEW_LIST_CODE = 7;
+    public static final int FILE_CHOSSER_CODE = 8;
 
     private Context context;
     private final IDialogProviderCallback iDialogProviderCallback;
@@ -233,7 +241,7 @@ public class DialogProvider {
                     positiveAction.setEnabled(true);
                 } else {
                     positiveAction.setEnabled(false);
-                    //TODO Show toast
+                    Toast.makeText(context, context.getString(R.string.invalid_list_name_text), Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -270,7 +278,7 @@ public class DialogProvider {
         dialog.show();
     }
 
-    public void showStatsDialog(int allItemsCount, int displayedItemsCount){
+    public void showStatsDialog(int allItemsCount, int displayedItemsCount) {
         StringBuilder sb = new StringBuilder();
         sb.append(context.getString(R.string.stat_dialog_all_items))
                 .append(": ")
@@ -286,5 +294,29 @@ public class DialogProvider {
                 .positiveText(context.getString(R.string.dialog_positive_button))
                 .negativeText(context.getString(R.string.dialog_negative_button))
                 .show();
+    }
+
+    public void showFileChosserDialog() {
+        DialogProperties properties = new DialogProperties();
+
+        properties.selection_mode = DialogConfigs.SINGLE_MODE;
+        properties.selection_type = DialogConfigs.FILE_SELECT;
+        properties.root = new File(DialogConfigs.DEFAULT_DIR);
+        properties.error_dir = new File(DialogConfigs.DEFAULT_DIR);
+        properties.offset = new File(DialogConfigs.DEFAULT_DIR);
+        properties.extensions = new String[]{".lbm"};
+
+        FilePickerDialog dialog = new FilePickerDialog(context, properties);
+
+        dialog.setTitle(context.getString(R.string.file_chooser_dialog_title));
+        dialog.setDialogSelectionListener(new DialogSelectionListener() {
+            @Override
+            public void onSelectedFilePaths(String[] files) {
+                String path = files[0];
+                iDialogProviderCallback.onFileChooserCallback(path, FILE_CHOSSER_CODE);
+            }
+        });
+
+        dialog.show();
     }
 }
