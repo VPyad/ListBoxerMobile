@@ -1,5 +1,6 @@
 package com.example.vpyad.myapplication3.helpers;
 
+import android.content.Context;
 import android.os.Environment;
 
 import java.io.File;
@@ -53,5 +54,9 @@ public class StorageHelper {
 
             return dir.toString();
         }
+    }
+
+    public static String getChacheDirPath(Context context) {
+        return context.getCacheDir().toString();
     }
 }

@@ -1,8 +1,12 @@
 package com.example.vpyad.myapplication3.providers;
 
+import android.app.Activity;
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.example.vpyad.myapplication3.MainActivity;
+import com.example.vpyad.myapplication3.helpers.StorageHelper;
 import com.example.vpyad.myapplication3.models.ListConfig;
 
 import java.io.File;
@@ -10,6 +14,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 
 /**
  * Created by vpyad on 03-Jan-18.
@@ -18,30 +28,22 @@ import java.io.ObjectOutputStream;
 public class ListConfigProvider {
 
     final static String fileExt = ".lbm";
-    final static String fileName = "tempList";
-
-    public static ListConfig getListConfigFromCache(String path) {
-        path += fileName + fileExt;
-        ListConfig config = loadSerializedConfig(path);
-        return config;
-    }
-
-    public static boolean setListConfigToCache(ListConfig config, String path) {
-        path += fileName;
-        return saveObject(config, path);
-    }
 
     public static ListConfig getListConfigFromDir(String path) {
         ListConfig config = loadSerializedConfig(path);
         return config;
     }
 
-    public static boolean setListConfigToDir(ListConfig config, String path) {
+    public static boolean setListConfigToDir(ListConfig config, String path, Activity activity) {
         path += "/" + config.getName();
-        return saveObject(config, path);
+        // TODO check if file with this name is existing
+        File f = new File(path + fileExt);
+        /*if (!f.exists())
+            path += (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS").format(new Date()));*/
+        return saveObject(config, path, activity);
     }
 
-    private static boolean saveObject(ListConfig config, String path) {
+    private static boolean saveObject(ListConfig config, String path, Activity activity) {
         boolean success = true;
         path += fileExt;
 
@@ -50,6 +52,9 @@ public class ListConfigProvider {
             objectOutputStream.writeObject(config);
             objectOutputStream.flush();
             objectOutputStream.close();
+
+            LocalStorageProvider localStorageProvider = new LocalStorageProvider(activity);
+            localStorageProvider.putString(LocalStorageProvider.CURRENT_LIST_PATH, path);
         } catch (Exception ex) {
             Log.v("Serialization Error:", ex.getMessage());
             ex.printStackTrace();
@@ -59,6 +64,7 @@ public class ListConfigProvider {
         return success;
     }
 
+    @Nullable
     private static ListConfig loadSerializedConfig(String path) {
 
         try {
@@ -70,5 +76,16 @@ public class ListConfigProvider {
         }
 
         return null;
+    }
+
+    public static ListConfig getListConfig(String path, Activity activity) {
+        if (path == "") {
+            ListConfig listConfig = new ListConfig();
+
+            setListConfigToDir(listConfig, StorageHelper.getPathToSave(), activity);
+            return listConfig;
+        } else {
+            return getListConfigFromDir(path);
+        }
     }
 }

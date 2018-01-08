@@ -2,14 +2,66 @@
     <string name="app_name">ListBoxer Mobile</string>
 
     <!-- Toolbar -->
-    <string name="add_toolbar_button">New</string>
-    <string name="save_toolbar_button">Save</string>
-    <string name="open_toolbar_button">Open</string>
-    <string name="more_toolbar_button">More</string>
-    <string name="sort_toolbar_button">Sort</string>
-    <string name="mode_toolbar_button">Mode</string>
-    <string name="stat_toolbar_button">Stat</string>
-    <string name="clear_all_toolbar_button">Clear all</string>
+    <string name="add_toolbar_button">Новый</string>
+    <string name="save_toolbar_button">Сохранить</string>
+    <string name="open_toolbar_button">Открыть</string>
+    <string name="more_toolbar_button">Еще</string>
+    <string name="sort_toolbar_button">Сортировка</string>
+    <string name="mode_toolbar_button">Режим</string>
+    <string name="stat_toolbar_button">Статистика</string>
+    <string name="clear_all_toolbar_button">Очистить все</string>
 
+    <!-- Dialog -->
+    <string name="dialog_positive_button">ОК</string>
+    <string name="dialog_negative_button">Отмена</string>
 
+    <!-- New list Dialog -->
+    <string name="new_list_name_textview_header">Название</string>
+    <string name="new_list_dialog_title">Создание нового спсика</string>
+
+    <!-- Mode dialog -->
+    <string name="mode_dialog_title">Выбирите режим</string>
+    <string name="mode_numeric">Цифровой режим</string>
+    <string name="mode_alphabetic">Алфавитный режим</string>
+
+    <!-- Sort dialog -->
+    <string name="sort_dialog_title">Выбирите сортировку</string>
+    <string name="sort_no_sort">Произвольная</string>
+    <string name="sort_asc">По возрастанию</string>
+    <string name="sort_desc">По убыванию</string>
+
+    <!-- Clear all dialog -->
+    <string name="clear_all_dialog_title">Очищение списка</string>
+    <string name="clear_all_dialog_message">Вы действительно хотите очистить список? Все элементы будут удалены.</string>
+
+    <!-- Open file dialog -->
+    <string name="open_file_dialog_title">Открытие списка</string>
+    <string name="open_file_dialog_message">Вы хотите открыть список. Сохранить текущий список?</string>
+    <string name="open_file_dialog_possitive_button">Сохранить</string>
+    <string name="open_file_dialog_negative_button">Не сохранять</string>
+
+    <!-- Save on exit dialog -->
+    <string name="save_dialog_title">Сохранение списка</string>
+    <string name="save_dialog_message">Вы хотите выйти из приложение. Сохранить текущий список?</string>
+    <string name="save_dialog_possitive_button">Сохранить</string>
+    <string name="save_dialog_negative_button">Не сохранять</string>
+
+    <!-- Remove item exit dialog -->
+    <string name="remove_item_dialog_title">Удаление элемента</string>
+    <string name="remove_item_dialog_message">Вы действительно хотите удалить текущий элемент?</string>
+
+    <!-- Stat dialog -->
+    <string name="stat_dialog_title">Статистика</string>
+    <string name="stat_dialog_all_items">Количество элементов в списке</string>
+    <string name="stat_dialog_displayed_items">Количество отображаемых элементов</string>
+
+    <!-- File chooser dialog -->
+    <string name="file_chooser_dialog_title">Выбирите файл</string>
+
+    <!-- Toasts -->
+    <string name="no_write_permission_text">Нет доступа на запись. Активируйте в настроках</string>
+    <string name="save_completed_text">Список сохранен</string>
+    <string name="save_failed_text">Во время сохранения списка произошла ошибка</string>
+    <string name="open_failed_text">Во время открытия списка произошла ошибка</string>
+    <string name="invalid_list_name_text">Неверное название списка</string>
 </resources>
