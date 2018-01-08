@@ -3,6 +3,7 @@ package com.example.vpyad.myapplication3.models;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by vpyad on 03-Jan-18.
@@ -10,7 +11,8 @@ import java.util.ArrayList;
 
 public class ListConfig implements Serializable {
 
-    public ListConfig(){}
+    public ListConfig() {
+    }
 
     public ListConfig(ListConfig listConfig) {
         this.name = listConfig.getName();
@@ -19,10 +21,10 @@ public class ListConfig implements Serializable {
         this.list = listConfig.getList();
     }
 
-    private String name = "";
+    private String name = "Новый_список";
     private int mode = 2; // 0 - numeric, 1 - alphabetic, 2 - mixed
     private int sort = 0; // 0 - no sorting, 1 - acs, 2 - desc
-    private ArrayList<String> list;
+    private ArrayList<String> list = new ArrayList<>();
 
     public void setMode(int mode) {
         this.mode = mode;

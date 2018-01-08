@@ -133,7 +133,13 @@ public class DialogProvider {
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        iDialogProviderCallback.onYesNoCallback(DialogProvider.OPEN_FILE_CODE);
+                        iDialogProviderCallback.onYesNoCallback(DialogProvider.OPEN_FILE_CODE, true);
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        iDialogProviderCallback.onYesNoCallback(DialogProvider.OPEN_FILE_CODE, false);
                     }
                 })
                 .show();
@@ -148,7 +154,13 @@ public class DialogProvider {
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        iDialogProviderCallback.onYesNoCallback(DialogProvider.SAVE_FILE_CODE);
+                        iDialogProviderCallback.onYesNoCallback(DialogProvider.SAVE_FILE_CODE, true);
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        iDialogProviderCallback.onYesNoCallback(DialogProvider.SAVE_FILE_CODE, false);
                     }
                 })
                 .show();
@@ -163,7 +175,13 @@ public class DialogProvider {
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        iDialogProviderCallback.onYesNoCallback(DialogProvider.CLEAR_ALL_CODE);
+                        iDialogProviderCallback.onYesNoCallback(DialogProvider.CLEAR_ALL_CODE, true);
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        iDialogProviderCallback.onYesNoCallback(DialogProvider.CLEAR_ALL_CODE, false);
                     }
                 })
                 .show();
@@ -178,7 +196,13 @@ public class DialogProvider {
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        iDialogProviderCallback.onYesNoCallback(DialogProvider.DELETE_ITEM_CODE);
+                        iDialogProviderCallback.onYesNoCallback(DialogProvider.DELETE_ITEM_CODE, true);
+                    }
+                })
+                .onNegative(new MaterialDialog.SingleButtonCallback() {
+                    @Override
+                    public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                        iDialogProviderCallback.onYesNoCallback(DialogProvider.DELETE_ITEM_CODE, false);
                     }
                 })
                 .show();

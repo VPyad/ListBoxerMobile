@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
 
         localStorageProvider = new LocalStorageProvider(MainActivity.this);
         dialogProvider = new DialogProvider(this, this);
-        listConfig = ListConfigProvider.getListConfig(localStorageProvider.getString(LocalStorageProvider.CURRENT_LIST_PATH), getApplicationContext());
+        listConfig = ListConfigProvider.getListConfig(localStorageProvider.getString(LocalStorageProvider.CURRENT_LIST_PATH), MainActivity.this);
 
         RequestPermissionHelper.requestWriteExternalStoragePermission(MainActivity.this);
 
@@ -114,6 +114,7 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
         switch (code) {
             case DialogProvider.CREATE_NEW_LIST_CODE:
                 listConfig = res;
+                ListConfigProvider.setListConfigToDir(res, StorageHelper.getPathToSave(), MainActivity.this);
                 // TODO Create new list
                 break;
             case DialogProvider.APPLY_MODE_CODE:
@@ -128,10 +129,16 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
     }
 
     @Override
-    public void onYesNoCallback(Integer res) {
+    public void onYesNoCallback(Integer res, boolean commitAction) {
         switch (res) {
             case DialogProvider.OPEN_FILE_CODE:
-                // TODO save file and show file chooser dialog
+                if (commitAction) {
+                    boolean saved = ListConfigProvider.setListConfigToDir(listConfig, StorageHelper.getPathToSave(), MainActivity.this);
+                    if (!saved) {
+                        makeToast(getString(R.string.save_failed_text));
+                    }
+                }
+                dialogProvider.showFileChosserDialog();
                 break;
             case DialogProvider.SAVE_FILE_CODE:
                 // TODO save file
@@ -162,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
 
     @Override
     public void onBackPressed() {
-        if (needToSave()) {
+        if (hasUnsaveData()) {
             dialogProvider.showSaveFileDialog();
         } else {
             super.onBackPressed();
@@ -179,13 +186,13 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
 
     @Override
     public void onResume() {
-        listConfig = ListConfigProvider.getListConfig(localStorageProvider.getString(LocalStorageProvider.CURRENT_LIST_PATH), getApplicationContext());
+        //listConfig = ListConfigProvider.getListConfig(localStorageProvider.getString(LocalStorageProvider.CURRENT_LIST_PATH), MainActivity.this);
         super.onResume();
     }
 
     private void saveToFile() {
         if (localStorageProvider.getBool(LocalStorageProvider.WRITE_PERMISSION_KEY)) {
-            if (ListConfigProvider.setListConfigToDir(listConfig, StorageHelper.getPathToSave())) {
+            if (ListConfigProvider.setListConfigToDir(listConfig, StorageHelper.getPathToSave(), MainActivity.this)) {
                 makeToast(getString(R.string.save_completed_text));
             } else {
                 makeToast(getString(R.string.save_failed_text));
@@ -196,8 +203,7 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
     }
 
     private void openFile() {
-        dialogProvider.showFileChosserDialog();
-        if (!needToSave()) {
+        if (hasUnsaveData()) {
             dialogProvider.showOpenFileDialog();
         } else if (localStorageProvider.getBool(LocalStorageProvider.WRITE_PERMISSION_KEY)) {
             dialogProvider.showFileChosserDialog();
@@ -210,7 +216,17 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
         Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
     }
 
-    private boolean needToSave() {
-        return ListConfigProvider.hasUnsavedData(localStorageProvider.getString(LocalStorageProvider.CURRENT_LIST_PATH), listConfig, this);
+    private boolean hasUnsaveData() {
+        ListConfig savedListConfig = ListConfigProvider.getListConfigFromDir(localStorageProvider.getString(LocalStorageProvider.CURRENT_LIST_PATH));
+
+        boolean isSavedNull = savedListConfig == null;
+
+        if (!isSavedNull) {
+            boolean eq = (listConfig.getList().containsAll(savedListConfig.getList()) && savedListConfig.getMode() == listConfig.getMode()
+                    && savedListConfig.getSort() == listConfig.getSort());
+            return !eq;
+        } else {
+            return false;
+        }
     }
 }
