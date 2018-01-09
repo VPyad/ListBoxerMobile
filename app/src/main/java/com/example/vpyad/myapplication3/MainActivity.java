@@ -1,43 +1,44 @@
 package com.example.vpyad.myapplication3;
 
-import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.DialogAction;
-import com.afollestad.materialdialogs.MaterialDialog;
+import com.example.vpyad.myapplication3.adapters.ItemsListAdapter;
 import com.example.vpyad.myapplication3.helpers.RequestPermissionHelper;
 import com.example.vpyad.myapplication3.helpers.StorageHelper;
-import com.example.vpyad.myapplication3.helpers.StringValidatorHelper;
 import com.example.vpyad.myapplication3.models.ListConfig;
+import com.example.vpyad.myapplication3.models.ListItem;
 import com.example.vpyad.myapplication3.providers.DialogProvider;
 import com.example.vpyad.myapplication3.providers.ListConfigProvider;
 import com.example.vpyad.myapplication3.providers.IDialogProviderCallback;
 import com.example.vpyad.myapplication3.providers.LocalStorageProvider;
-import com.github.angads25.filepicker.controller.DialogSelectionListener;
-import com.github.angads25.filepicker.model.DialogConfigs;
-import com.github.angads25.filepicker.model.DialogProperties;
-import com.github.angads25.filepicker.view.FilePickerDialog;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements IDialogProviderCallback {
+public class MainActivity extends AppCompatActivity implements IDialogProviderCallback, AdapterView.OnItemClickListener {
 
     private LocalStorageProvider localStorageProvider;
     private DialogProvider dialogProvider;
     private ListConfig listConfig;
+    private RecyclerView recyclerView;
+    private ItemsListAdapter itemsAdapter;
+    private EditText itemInputText;
+    private ListItem itemToDelete;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +54,27 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        recyclerView = findViewById(R.id.listRecyclerView);
+        itemInputText = findViewById(R.id.inputEditText);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        addTrashItems();
+        updateItemsAdapter();
+
+        itemsAdapter.notifyDataSetChanged();
+    }
+
+    //TODO !!!Remove!!!
+    private void addTrashItems() {
+        listConfig.addToList(new ListItem("Apple", ListConfig.MODE_ALPHABETIC));
+        listConfig.addToList(new ListItem("Orange", ListConfig.MODE_ALPHABETIC));
+        listConfig.addToList(new ListItem("Apple1", ListConfig.MODE_MIXED));
+        listConfig.addToList(new ListItem("Orange!", ListConfig.MODE_MIXED));
+        listConfig.addToList(new ListItem("123", ListConfig.MODE_NUMERIC));
+        listConfig.addToList(new ListItem("456", ListConfig.MODE_NUMERIC));
     }
 
     @Override
@@ -115,15 +137,20 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
             case DialogProvider.CREATE_NEW_LIST_CODE:
                 listConfig = res;
                 ListConfigProvider.setListConfigToDir(res, StorageHelper.getPathToSave(), MainActivity.this);
-                // TODO Create new list
+                updateItemsAdapter();
+                hideKeyboard();
+                clearInputText();
                 break;
             case DialogProvider.APPLY_MODE_CODE:
-                listConfig = res;
-                // TODO apply mode
+                listConfig.setMode(res.getMode());
+                listConfig.filterList(res.getMode());
+                updateItemsAdapter();
                 break;
             case DialogProvider.APPLY_SORT_CODE:
-                listConfig = res;
-                // TODO apply sort
+                int n = res.getSort();
+                listConfig.setSort(res.getSort());
+                listConfig.sortList(res.getSort());
+                updateItemsAdapter();
                 break;
         }
     }
@@ -144,6 +171,10 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
                 // TODO save file
                 break;
             case DialogProvider.DELETE_ITEM_CODE:
+                if (commitAction && itemToDelete != null) {
+                    listConfig.removeItem(itemToDelete);
+                    updateItemsAdapter();
+                }
                 // TODO delete item from RecyclerView
                 break;
             case DialogProvider.CLEAR_ALL_CODE:
@@ -160,6 +191,9 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
                 if (listConfig != null) {
                     this.listConfig = listConfig;
                     localStorageProvider.putString(LocalStorageProvider.CURRENT_LIST_PATH, path);
+                    updateItemsAdapter();
+                    hideKeyboard();
+                    clearInputText();
                 } else {
                     makeToast(getString(R.string.open_failed_text));
                 }
@@ -228,5 +262,33 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
         } else {
             return false;
         }
+    }
+
+    public void onAddItemButtonClicked(View view) {
+        listConfig.addToList(new ListItem(itemInputText.getText().toString(), ListConfig.MODE_MIXED));
+        itemsAdapter.notifyDataSetChanged();
+        clearInputText();
+    }
+
+    private void updateItemsAdapter() {
+        itemsAdapter = new ItemsListAdapter(this, listConfig.getList());
+        recyclerView.setAdapter(itemsAdapter);
+    }
+
+    private void hideKeyboard() {
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+    }
+
+    private void clearInputText() {
+        itemInputText.setText("");
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+        ListItem item = itemsAdapter.getItem(i);
+        itemToDelete = item;
+
+        dialogProvider.showDeleteItemDialog();
     }
 }

@@ -1,9 +1,13 @@
 package com.example.vpyad.myapplication3.models;
 
+import android.support.annotation.NonNull;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by vpyad on 03-Jan-18.
@@ -11,7 +15,26 @@ import java.util.Arrays;
 
 public class ListConfig implements Serializable {
 
+    public static final int MODE_NUMERIC = 0;
+    public static final int MODE_ALPHABETIC = 1;
+    public static final int MODE_MIXED = 2;
+
+    public static final int SORT_NO_SORT = 0;
+    public static final int SORT_ASC = 1;
+    public static final int SORT_DESC = 2;
+
+    private String name;
+    private int mode;
+    private int sort;
+    private List<ListItem> list;
+    private List<ListItem> defaultList;
+
     public ListConfig() {
+        name = "Новый_список";
+        mode = MODE_MIXED;
+        sort = SORT_NO_SORT;
+        list = new ArrayList<>();
+        defaultList = new ArrayList<>();
     }
 
     public ListConfig(ListConfig listConfig) {
@@ -19,12 +42,10 @@ public class ListConfig implements Serializable {
         this.mode = listConfig.getMode();
         this.sort = listConfig.getSort();
         this.list = listConfig.getList();
-    }
+        defaultList = new ArrayList<>();
 
-    private String name = "Новый_список";
-    private int mode = 2; // 0 - numeric, 1 - alphabetic, 2 - mixed
-    private int sort = 0; // 0 - no sorting, 1 - acs, 2 - desc
-    private ArrayList<String> list = new ArrayList<>();
+        defaultList.addAll(list);
+    }
 
     public void setMode(int mode) {
         this.mode = mode;
@@ -50,11 +71,48 @@ public class ListConfig implements Serializable {
         return sort;
     }
 
-    public void setList(ArrayList<String> list) {
+    public void setList(List<ListItem> list) {
         this.list = list;
+        defaultList.addAll(list);
     }
 
-    public ArrayList<String> getList() {
+    public List<ListItem> getList() {
         return list;
+    }
+
+    public boolean addToList(ListItem item) {
+        return list.add(item) && defaultList.add(item);
+    }
+
+    public boolean removeItem(ListItem item) {
+        return list.remove(item) && defaultList.remove(item);
+    }
+
+    public void filterList(int modeType) {
+        if (modeType == MODE_ALPHABETIC || modeType == MODE_NUMERIC) {
+            List<ListItem> filteredList = new ArrayList<ListItem>();
+            for (ListItem item : defaultList) {
+                if (item.getMode() == modeType) {
+                    filteredList.add(item);
+                }
+            }
+            list = filteredList;
+        } else if (modeType == MODE_MIXED) {
+            list = defaultList;
+        }
+    }
+
+    public void sortList(int sortType) {
+        switch (sortType) {
+            case SORT_ASC:
+                Collections.sort(list, ListItem.getDescComparator());
+                break;
+            case SORT_DESC:
+                Collections.sort(list, ListItem.getDescComparator());
+                break;
+            case SORT_NO_SORT:
+                list = defaultList;
+                break;
+        }
     }
 }
