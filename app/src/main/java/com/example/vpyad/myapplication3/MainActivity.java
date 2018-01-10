@@ -9,9 +9,9 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.example.vpyad.myapplication3.adapters.ItemsListAdapter;
 import com.example.vpyad.myapplication3.helpers.RequestPermissionHelper;
 import com.example.vpyad.myapplication3.helpers.StorageHelper;
+import com.example.vpyad.myapplication3.helpers.StringValidatorHelper;
 import com.example.vpyad.myapplication3.models.ListConfig;
 import com.example.vpyad.myapplication3.models.ListItem;
 import com.example.vpyad.myapplication3.providers.DialogProvider;
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
     private ItemsListAdapter itemsAdapter;
     private EditText itemInputText;
     private ListItem itemToDelete;
+    private boolean hasChange = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,10 +63,10 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        addTrashItems();
+        addTrashItems2();
         updateItemsAdapter();
 
-        itemsAdapter.notifyDataSetChanged();
+        //itemsAdapter.notifyDataSetChanged();
     }
 
     //TODO !!!Remove!!!
@@ -75,6 +77,13 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
         listConfig.addToList(new ListItem("Orange!", ListConfig.MODE_MIXED));
         listConfig.addToList(new ListItem("123", ListConfig.MODE_NUMERIC));
         listConfig.addToList(new ListItem("456", ListConfig.MODE_NUMERIC));
+    }
+
+    private void addTrashItems2(){
+        listConfig.addToList(new ListItem("Apple", ListConfig.MODE_ALPHABETIC));
+        listConfig.addToList(new ListItem("Apricot", ListConfig.MODE_ALPHABETIC));
+        listConfig.addToList(new ListItem("Banana", ListConfig.MODE_ALPHABETIC));
+        listConfig.addToList(new ListItem("Blueberry", ListConfig.MODE_ALPHABETIC));
     }
 
     @Override
@@ -110,14 +119,13 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
                 saveToFile();
                 return true;
             case R.id.action_sort:
-                dialogProvider.showSortDialog(listConfig);
+                dialogProvider.showSortDialog(listConfig.getSort());
                 return true;
             case R.id.action_mode:
-                dialogProvider.showModeDialog(listConfig);
+                dialogProvider.showModeDialog(listConfig.getMode());
                 return true;
             case R.id.action_stat:
-                // TODO Edit when RecyclerView ready
-                dialogProvider.showStatsDialog(10, 5);
+                dialogProvider.showStatsDialog(listConfig.allItemsCount(), listConfig.filteredItemsCount());
                 return true;
             case R.id.action_clear_all:
                 dialogProvider.showClearAllDialog();
@@ -128,29 +136,15 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    }
-
-    @Override
     public void onListConfigCallback(ListConfig res, Integer code) {
         switch (code) {
             case DialogProvider.CREATE_NEW_LIST_CODE:
                 listConfig = res;
                 ListConfigProvider.setListConfigToDir(res, StorageHelper.getPathToSave(), MainActivity.this);
+                hasChange = false;
                 updateItemsAdapter();
                 hideKeyboard();
                 clearInputText();
-                break;
-            case DialogProvider.APPLY_MODE_CODE:
-                listConfig.setMode(res.getMode());
-                listConfig.filterList(res.getMode());
-                updateItemsAdapter();
-                break;
-            case DialogProvider.APPLY_SORT_CODE:
-                int n = res.getSort();
-                listConfig.setSort(res.getSort());
-                listConfig.sortList(res.getSort());
-                updateItemsAdapter();
                 break;
         }
     }
@@ -164,21 +158,21 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
                     if (!saved) {
                         makeToast(getString(R.string.save_failed_text));
                     }
+                    hasChange = false;
                 }
                 dialogProvider.showFileChosserDialog();
-                break;
-            case DialogProvider.SAVE_FILE_CODE:
-                // TODO save file
                 break;
             case DialogProvider.DELETE_ITEM_CODE:
                 if (commitAction && itemToDelete != null) {
                     listConfig.removeItem(itemToDelete);
+                    hasChange = true;
                     updateItemsAdapter();
                 }
-                // TODO delete item from RecyclerView
                 break;
             case DialogProvider.CLEAR_ALL_CODE:
-                // TODO Clear all
+                listConfig.removeAll();
+                hasChange = true;
+                updateItemsAdapter();
                 break;
         }
     }
@@ -190,6 +184,7 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
                 ListConfig listConfig = ListConfigProvider.getListConfigFromDir(path);
                 if (listConfig != null) {
                     this.listConfig = listConfig;
+                    hasChange = false;
                     localStorageProvider.putString(LocalStorageProvider.CURRENT_LIST_PATH, path);
                     updateItemsAdapter();
                     hideKeyboard();
@@ -202,8 +197,22 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
     }
 
     @Override
+    public void onResultCodeCallback(int actionCode, int payloadCode) {
+        switch (actionCode) {
+            case DialogProvider.APPLY_MODE_CODE:
+                listConfig.setMode(payloadCode);
+                updateItemsAdapter();
+                break;
+            case DialogProvider.APPLY_SORT_CODE:
+                listConfig.setSort(payloadCode);
+                updateItemsAdapter();
+                break;
+        }
+    }
+
+    @Override
     public void onBackPressed() {
-        if (hasUnsaveData()) {
+        if (hasChange) {
             dialogProvider.showSaveFileDialog();
         } else {
             super.onBackPressed();
@@ -237,8 +246,8 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
     }
 
     private void openFile() {
-        if (hasUnsaveData()) {
-            dialogProvider.showOpenFileDialog();
+        if (hasChange) {
+            dialogProvider.saveOnOpenFileDialog();
         } else if (localStorageProvider.getBool(LocalStorageProvider.WRITE_PERMISSION_KEY)) {
             dialogProvider.showFileChosserDialog();
         } else {
@@ -250,29 +259,22 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
         Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
     }
 
-    private boolean hasUnsaveData() {
-        ListConfig savedListConfig = ListConfigProvider.getListConfigFromDir(localStorageProvider.getString(LocalStorageProvider.CURRENT_LIST_PATH));
-
-        boolean isSavedNull = savedListConfig == null;
-
-        if (!isSavedNull) {
-            boolean eq = (listConfig.getList().containsAll(savedListConfig.getList()) && savedListConfig.getMode() == listConfig.getMode()
-                    && savedListConfig.getSort() == listConfig.getSort());
-            return !eq;
-        } else {
-            return false;
-        }
-    }
-
     public void onAddItemButtonClicked(View view) {
-        listConfig.addToList(new ListItem(itemInputText.getText().toString(), ListConfig.MODE_MIXED));
-        itemsAdapter.notifyDataSetChanged();
+        if(!isInputLegal(itemInputText.getText().toString())){
+            makeToast(getString(R.string.invalid_input));
+            return;
+        }
+
+        listConfig.addToList(new ListItem(itemInputText.getText().toString(), listConfig.getMode()));
+        hasChange = true;
+        updateItemsAdapter();
+        listConfig.sortList();
         clearInputText();
     }
 
     private void updateItemsAdapter() {
         itemsAdapter = new ItemsListAdapter(this, listConfig.getList());
-        recyclerView.setAdapter(itemsAdapter);
+        recyclerView.swapAdapter(new ItemsListAdapter(this, listConfig.getList()), true);
     }
 
     private void hideKeyboard() {
@@ -282,6 +284,19 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
 
     private void clearInputText() {
         itemInputText.setText("");
+    }
+
+    private boolean isInputLegal(String s) {
+        switch (listConfig.getMode()) {
+            case ListConfig.MODE_ALPHABETIC:
+                return StringValidatorHelper.allLetters(s);
+            case ListConfig.MODE_MIXED:
+                return StringValidatorHelper.allLettersAndDigits(s);
+            case ListConfig.MODE_NUMERIC:
+                return StringValidatorHelper.allDigits(s);
+            default:
+                return false;
+        }
     }
 
     @Override

@@ -29,7 +29,14 @@ public class ListConfigProvider {
 
     final static String fileExt = ".lbm";
 
+    @Nullable
     public static ListConfig getListConfigFromDir(String path) {
+        /*if (path == "") {
+            return null;
+        } else {
+            ListConfig config = loadSerializedConfig(path);
+            return config;
+        }*/
         ListConfig config = loadSerializedConfig(path);
         return config;
     }
@@ -37,8 +44,8 @@ public class ListConfigProvider {
     public static boolean setListConfigToDir(ListConfig config, String path, Activity activity) {
         path += "/" + config.getName();
         // TODO check if file with this name is existing
-        File f = new File(path + fileExt);
-        /*if (!f.exists())
+        /*File f = new File(path + fileExt);
+        if (!f.exists())
             path += (new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS").format(new Date()));*/
         return saveObject(config, path, activity);
     }

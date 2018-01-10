@@ -1,6 +1,7 @@
 package com.example.vpyad.myapplication3.models;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -77,11 +78,14 @@ public class ListConfig implements Serializable {
     }
 
     public List<ListItem> getList() {
+        sortList();
+        filterList();
         return list;
     }
 
-    public boolean addToList(ListItem item) {
-        return list.add(item) && defaultList.add(item);
+    public void addToList(ListItem item) {
+        list.add(item);
+        defaultList.add(item);
     }
 
     public boolean removeItem(ListItem item) {
@@ -98,8 +102,13 @@ public class ListConfig implements Serializable {
             }
             list = filteredList;
         } else if (modeType == MODE_MIXED) {
-            list = defaultList;
+            list.clear();
+            list.addAll(defaultList);
         }
+    }
+
+    public void filterList() {
+        filterList(mode);
     }
 
     public void sortList(int sortType) {
@@ -111,8 +120,26 @@ public class ListConfig implements Serializable {
                 Collections.sort(list, ListItem.getDescComparator());
                 break;
             case SORT_NO_SORT:
-                list = defaultList;
+                list.clear();
+                list.addAll(defaultList);
                 break;
         }
+    }
+
+    public void sortList() {
+        sortList(sort);
+    }
+
+    public int allItemsCount() {
+        return defaultList.size();
+    }
+
+    public int filteredItemsCount() {
+        return list.size();
+    }
+
+    public void removeAll(){
+        defaultList.clear();
+        list.clear();
     }
 }
