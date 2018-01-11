@@ -2,6 +2,8 @@ package com.example.vpyad.myapplication3.models;
 
 import android.support.annotation.NonNull;
 
+import com.example.vpyad.myapplication3.helpers.StringValidatorHelper;
+
 import java.io.Serializable;
 import java.util.Comparator;
 
@@ -14,9 +16,16 @@ public class ListItem implements Serializable {
     public ListItem() {
     }
 
-    public ListItem(String item, int mode) {
-        this.mode = mode;
+    public ListItem(String item) {
         this.item = item;
+
+        if (StringValidatorHelper.allDigits(item)) {
+            this.mode = ListConfig.MODE_NUMERIC;
+        } else if (StringValidatorHelper.allLetters(item)) {
+            this.mode = ListConfig.MODE_ALPHABETIC;
+        } else {
+            this.mode = ListConfig.MODE_MIXED;
+        }
     }
 
     public ListItem(ListItem listItem) {
@@ -24,7 +33,7 @@ public class ListItem implements Serializable {
         this.item = listItem.getItem();
     }
 
-    private int mode = ListConfig.MODE_MIXED;
+    private int mode;
     private String item = "";
 
     public int getMode() {
@@ -43,7 +52,7 @@ public class ListItem implements Serializable {
         this.item = item;
     }
 
-    public static Comparator<ListItem> getAscComparator(){
+    public static Comparator<ListItem> getAscComparator() {
         return new Comparator<ListItem>() {
             @Override
             public int compare(ListItem listItem, ListItem t1) {
@@ -52,7 +61,7 @@ public class ListItem implements Serializable {
         };
     }
 
-    public static Comparator<ListItem> getDescComparator(){
+    public static Comparator<ListItem> getDescComparator() {
         return new Comparator<ListItem>() {
             @Override
             public int compare(ListItem listItem, ListItem t1) {
@@ -60,4 +69,18 @@ public class ListItem implements Serializable {
             }
         };
     }
+
+    public static Comparator<ListItem> itemComparator
+            = new Comparator<ListItem>() {
+
+        public int compare(ListItem item1, ListItem item2) {
+
+            String itemStr1 = item1.getItem().toUpperCase();
+            String itemStr2 = item2.getItem().toUpperCase();
+
+            //ascending order
+            return itemStr1.compareTo(itemStr2);
+        }
+
+    };
 }

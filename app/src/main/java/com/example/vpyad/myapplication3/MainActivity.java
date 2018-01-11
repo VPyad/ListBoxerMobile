@@ -71,19 +71,19 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
 
     //TODO !!!Remove!!!
     private void addTrashItems() {
-        listConfig.addToList(new ListItem("Apple", ListConfig.MODE_ALPHABETIC));
-        listConfig.addToList(new ListItem("Orange", ListConfig.MODE_ALPHABETIC));
-        listConfig.addToList(new ListItem("Apple1", ListConfig.MODE_MIXED));
-        listConfig.addToList(new ListItem("Orange!", ListConfig.MODE_MIXED));
-        listConfig.addToList(new ListItem("123", ListConfig.MODE_NUMERIC));
-        listConfig.addToList(new ListItem("456", ListConfig.MODE_NUMERIC));
+        listConfig.addToList(new ListItem("Apple"));
+        listConfig.addToList(new ListItem("Orange"));
+        listConfig.addToList(new ListItem("Apple1"));
+        listConfig.addToList(new ListItem("Orange!"));
+        listConfig.addToList(new ListItem("123"));
+        listConfig.addToList(new ListItem("456"));
     }
 
     private void addTrashItems2(){
-        listConfig.addToList(new ListItem("Apple", ListConfig.MODE_ALPHABETIC));
-        listConfig.addToList(new ListItem("Apricot", ListConfig.MODE_ALPHABETIC));
-        listConfig.addToList(new ListItem("Banana", ListConfig.MODE_ALPHABETIC));
-        listConfig.addToList(new ListItem("Blueberry", ListConfig.MODE_ALPHABETIC));
+        listConfig.addToList(new ListItem("Apple"));
+        listConfig.addToList(new ListItem("Apricot"));
+        listConfig.addToList(new ListItem("Banana"));
+        listConfig.addToList(new ListItem("Blueberry"));
     }
 
     @Override
@@ -265,7 +265,7 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
             return;
         }
 
-        listConfig.addToList(new ListItem(itemInputText.getText().toString(), listConfig.getMode()));
+        listConfig.addToList(new ListItem(itemInputText.getText().toString()));
         hasChange = true;
         updateItemsAdapter();
         listConfig.sortList();
@@ -274,7 +274,8 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
 
     private void updateItemsAdapter() {
         itemsAdapter = new ItemsListAdapter(this, listConfig.getList());
-        recyclerView.swapAdapter(new ItemsListAdapter(this, listConfig.getList()), true);
+        recyclerView.setAdapter(itemsAdapter);
+        //recyclerView.swapAdapter(new ItemsListAdapter(this, listConfig.getList()), true);
     }
 
     private void hideKeyboard() {

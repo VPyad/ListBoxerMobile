@@ -1,12 +1,7 @@
 package com.example.vpyad.myapplication3.models;
 
-import android.support.annotation.NonNull;
-import android.util.Log;
-
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -78,8 +73,8 @@ public class ListConfig implements Serializable {
     }
 
     public List<ListItem> getList() {
-        sortList();
         filterList();
+        sortList();
         return list;
     }
 
@@ -101,10 +96,11 @@ public class ListConfig implements Serializable {
                 }
             }
             list = filteredList;
-        } else if (modeType == MODE_MIXED) {
+        } else { /*if (modeType == MODE_MIXED && sort == ListConfig.SORT_NO_SORT) {*/
             list.clear();
             list.addAll(defaultList);
         }
+        //}
     }
 
     public void filterList() {
@@ -112,17 +108,26 @@ public class ListConfig implements Serializable {
     }
 
     public void sortList(int sortType) {
-        switch (sortType) {
-            case SORT_ASC:
-                Collections.sort(list, ListItem.getDescComparator());
-                break;
-            case SORT_DESC:
-                Collections.sort(list, ListItem.getDescComparator());
-                break;
-            case SORT_NO_SORT:
-                list.clear();
-                list.addAll(defaultList);
-                break;
+        if (mode == ListConfig.MODE_MIXED && sort == ListConfig.SORT_NO_SORT) {
+            list.clear();
+            list.addAll(defaultList);
+        }
+        else {
+            switch (sortType) {
+                case SORT_ASC:
+                    Collections.sort(list, ListItem.itemComparator);
+                    break;
+                case SORT_DESC:
+                    Collections.sort(list, ListItem.itemComparator);
+                    List<ListItem> reversed = new ArrayList();
+                    for (int i = list.size() - 1; i >= 0; i--) {
+                        ListItem t = list.get(i);
+                        reversed.add(t);
+                    }
+                    list.clear();
+                    list.addAll(reversed);
+                    break;
+            }
         }
     }
 
@@ -138,7 +143,7 @@ public class ListConfig implements Serializable {
         return list.size();
     }
 
-    public void removeAll(){
+    public void removeAll() {
         defaultList.clear();
         list.clear();
     }
