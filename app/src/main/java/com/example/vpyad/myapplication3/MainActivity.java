@@ -1,7 +1,6 @@
 package com.example.vpyad.myapplication3;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,7 +8,6 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,8 +26,6 @@ import com.example.vpyad.myapplication3.providers.DialogProvider;
 import com.example.vpyad.myapplication3.providers.ListConfigProvider;
 import com.example.vpyad.myapplication3.providers.IDialogProviderCallback;
 import com.example.vpyad.myapplication3.providers.LocalStorageProvider;
-
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements IDialogProviderCallback, AdapterView.OnItemClickListener {
 
@@ -63,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        addTrashItems2();
+        //addTrashItems2();
         updateItemsAdapter();
 
         //itemsAdapter.notifyDataSetChanged();
@@ -79,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
         listConfig.addToList(new ListItem("456"));
     }
 
-    private void addTrashItems2(){
+    private void addTrashItems2() {
         listConfig.addToList(new ListItem("Apple"));
         listConfig.addToList(new ListItem("Apricot"));
         listConfig.addToList(new ListItem("Banana"));
@@ -174,6 +170,15 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
                 hasChange = true;
                 updateItemsAdapter();
                 break;
+            case DialogProvider.SAVE_ON_BACK_PRESSED_FILE_CODE:
+                if (commitAction) {
+                    saveToFile();
+                    hasChange = false;
+                    super.onBackPressed();
+                } else {
+                    super.onBackPressed();
+                }
+                break;
         }
     }
 
@@ -213,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
     @Override
     public void onBackPressed() {
         if (hasChange) {
-            dialogProvider.showSaveFileDialog();
+            dialogProvider.showSaveOnBackPressedFileDialog();
         } else {
             super.onBackPressed();
         }
@@ -221,10 +226,16 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
 
     @Override
     public void onPause() {
-        /*if(needToSave()){
-            ListConfigProvider.setListConfigToDir(listConfig, localStorageProvider.getString(LocalStorageProvider.CURRENT_LIST_PATH));
-        }*/
         super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        if (hasChange) {
+            saveToFile();
+            hasChange = false;
+        }
+        super.onStop();
     }
 
     @Override
@@ -237,6 +248,7 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
         if (localStorageProvider.getBool(LocalStorageProvider.WRITE_PERMISSION_KEY)) {
             if (ListConfigProvider.setListConfigToDir(listConfig, StorageHelper.getPathToSave(), MainActivity.this)) {
                 makeToast(getString(R.string.save_completed_text));
+                hasChange = false;
             } else {
                 makeToast(getString(R.string.save_failed_text));
             }
@@ -260,7 +272,7 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
     }
 
     public void onAddItemButtonClicked(View view) {
-        if(!isInputLegal(itemInputText.getText().toString())){
+        if (!isInputLegal(itemInputText.getText().toString())) {
             makeToast(getString(R.string.invalid_input));
             return;
         }
@@ -269,6 +281,7 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
         hasChange = true;
         updateItemsAdapter();
         listConfig.sortList();
+        recyclerView.scrollToPosition(listConfig.filteredItemsCount() - 1);
         clearInputText();
     }
 
@@ -302,8 +315,7 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        ListItem item = itemsAdapter.getItem(i);
-        itemToDelete = item;
+        itemToDelete = itemsAdapter.getItem(i);
 
         dialogProvider.showDeleteItemDialog();
     }

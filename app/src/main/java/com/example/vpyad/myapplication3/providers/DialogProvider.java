@@ -12,7 +12,6 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.example.vpyad.myapplication3.MainActivity;
 import com.example.vpyad.myapplication3.R;
 import com.example.vpyad.myapplication3.helpers.StringValidatorHelper;
 import com.example.vpyad.myapplication3.models.ListConfig;
@@ -32,7 +31,7 @@ import java.util.Collection;
 public class DialogProvider {
 
     public static final int OPEN_FILE_CODE = 1;
-    public static final int SAVE_FILE_CODE = 2;
+    public static final int SAVE_ON_BACK_PRESSED_FILE_CODE = 2;
     public static final int DELETE_ITEM_CODE = 3;
     public static final int CLEAR_ALL_CODE = 4;
     public static final int APPLY_MODE_CODE = 5;
@@ -68,8 +67,7 @@ public class DialogProvider {
                 .itemsCallbackMultiChoice(selectedIndxs, new MaterialDialog.ListCallbackMultiChoice() {
                     @Override
                     public boolean onSelection(MaterialDialog dialog, Integer[] which, CharSequence[] text) {
-                        boolean allowSelectionChange = which.length >= 1;
-                        return allowSelectionChange;
+                        return which.length >= 1;
                     }
                 })
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
@@ -141,7 +139,7 @@ public class DialogProvider {
                 .show();
     }
 
-    public void showSaveFileDialog() {
+    public void showSaveOnBackPressedFileDialog() {
         new MaterialDialog.Builder(context)
                 .title(context.getString(R.string.save_dialog_title))
                 .content(context.getString(R.string.save_dialog_message))
@@ -150,13 +148,13 @@ public class DialogProvider {
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        iDialogProviderCallback.onYesNoCallback(DialogProvider.SAVE_FILE_CODE, true);
+                        iDialogProviderCallback.onYesNoCallback(DialogProvider.SAVE_ON_BACK_PRESSED_FILE_CODE, true);
                     }
                 })
                 .onNegative(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        iDialogProviderCallback.onYesNoCallback(DialogProvider.SAVE_FILE_CODE, false);
+                        iDialogProviderCallback.onYesNoCallback(DialogProvider.SAVE_ON_BACK_PRESSED_FILE_CODE, false);
                     }
                 })
                 .show();
