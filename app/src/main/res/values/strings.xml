@@ -64,4 +64,7 @@
     <string name="save_failed_text">Во время сохранения списка произошла ошибка</string>
     <string name="open_failed_text">Во время открытия списка произошла ошибка</string>
     <string name="invalid_list_name_text">Неверное название списка</string>
+    <string name="invalid_input">Введенное значение не допустимо для выбранного режима</string>
+
+    <string name="add_item_button">Добавить</string>>
 </resources>

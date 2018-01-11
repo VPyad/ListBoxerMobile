@@ -12,7 +12,6 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.example.vpyad.myapplication3.MainActivity;
 import com.example.vpyad.myapplication3.R;
 import com.example.vpyad.myapplication3.helpers.StringValidatorHelper;
 import com.example.vpyad.myapplication3.models.ListConfig;
@@ -32,7 +31,7 @@ import java.util.Collection;
 public class DialogProvider {
 
     public static final int OPEN_FILE_CODE = 1;
-    public static final int SAVE_FILE_CODE = 2;
+    public static final int SAVE_ON_BACK_PRESSED_FILE_CODE = 2;
     public static final int DELETE_ITEM_CODE = 3;
     public static final int CLEAR_ALL_CODE = 4;
     public static final int APPLY_MODE_CODE = 5;
@@ -48,17 +47,15 @@ public class DialogProvider {
         this.iDialogProviderCallback = iDialogProviderCallback;
     }
 
-    public void showModeDialog(ListConfig listConfig) {
+    public void showModeDialog(int currentMode) {
         Collection<String> modes = Arrays.asList(context.getString(R.string.mode_numeric), context.getString(R.string.mode_alphabetic));
         final Integer[] selectedIndxs;
 
-        if (listConfig.getMode() == 2) {
+        if (currentMode == ListConfig.MODE_MIXED) {
             selectedIndxs = new Integer[]{0, 1};
         } else {
-            selectedIndxs = new Integer[]{listConfig.getMode()};
+            selectedIndxs = new Integer[]{currentMode};
         }
-
-        final ListConfig innerListConfig = new ListConfig(listConfig);
 
         new MaterialDialog.Builder(this.context)
                 .title(context.getString(R.string.mode_dialog_title))
@@ -70,8 +67,7 @@ public class DialogProvider {
                 .itemsCallbackMultiChoice(selectedIndxs, new MaterialDialog.ListCallbackMultiChoice() {
                     @Override
                     public boolean onSelection(MaterialDialog dialog, Integer[] which, CharSequence[] text) {
-                        boolean allowSelectionChange = which.length >= 1;
-                        return allowSelectionChange;
+                        return which.length >= 1;
                     }
                 })
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
@@ -80,31 +76,31 @@ public class DialogProvider {
                         Integer[] selected = dialog.getSelectedIndices();
 
                         if (!Arrays.equals(selected, selectedIndxs)) {
-                            ListConfig result = new ListConfig(innerListConfig);
+
+                            int mode;
 
                             if (selected.length == 2) {
-                                result.setMode(2);
+                                mode = ListConfig.MODE_MIXED;
                             } else {
-                                result.setMode(selected[0]);
+                                mode = selected[0];
                             }
 
-                            iDialogProviderCallback.onListConfigCallback(result, APPLY_MODE_CODE);
+                            iDialogProviderCallback.onResultCodeCallback(APPLY_MODE_CODE, mode);
                         }
                     }
                 })
                 .show();
     }
 
-    public void showSortDialog(ListConfig listConfig) {
+    public void showSortDialog(final int currentSort) {
         Collection<String> sorts = Arrays.asList(context.getString(R.string.sort_no_sort), context.getString(R.string.sort_asc), context.getString(R.string.sort_desc));
-        final ListConfig innerListConfig = new ListConfig(listConfig);
         new MaterialDialog.Builder(context)
                 .title(context.getString(R.string.sort_dialog_title))
                 .items(sorts)
                 .autoDismiss(true)
                 .positiveText(context.getString(R.string.dialog_positive_button))
                 .negativeText(context.getString(R.string.dialog_negative_button))
-                .itemsCallbackSingleChoice(innerListConfig.getSort(), new MaterialDialog.ListCallbackSingleChoice() {
+                .itemsCallbackSingleChoice(currentSort, new MaterialDialog.ListCallbackSingleChoice() {
                     @Override
                     public boolean onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
                         return true;
@@ -113,18 +109,16 @@ public class DialogProvider {
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        if (dialog.getSelectedIndex() != innerListConfig.getSort()) {
-                            ListConfig result = new ListConfig(innerListConfig);
-                            result.setSort(dialog.getSelectedIndex());
+                        if (dialog.getSelectedIndex() != currentSort) {
 
-                            iDialogProviderCallback.onListConfigCallback(result, APPLY_SORT_CODE);
+                            iDialogProviderCallback.onResultCodeCallback(APPLY_SORT_CODE, dialog.getSelectedIndex());
                         }
                     }
                 })
                 .show();
     }
 
-    public void showOpenFileDialog() {
+    public void saveOnOpenFileDialog() {
         new MaterialDialog.Builder(context)
                 .title(context.getString(R.string.open_file_dialog_title))
                 .content(context.getString(R.string.open_file_dialog_message))
@@ -145,7 +139,7 @@ public class DialogProvider {
                 .show();
     }
 
-    public void showSaveFileDialog() {
+    public void showSaveOnBackPressedFileDialog() {
         new MaterialDialog.Builder(context)
                 .title(context.getString(R.string.save_dialog_title))
                 .content(context.getString(R.string.save_dialog_message))
@@ -154,13 +148,13 @@ public class DialogProvider {
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        iDialogProviderCallback.onYesNoCallback(DialogProvider.SAVE_FILE_CODE, true);
+                        iDialogProviderCallback.onYesNoCallback(DialogProvider.SAVE_ON_BACK_PRESSED_FILE_CODE, true);
                     }
                 })
                 .onNegative(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        iDialogProviderCallback.onYesNoCallback(DialogProvider.SAVE_FILE_CODE, false);
+                        iDialogProviderCallback.onYesNoCallback(DialogProvider.SAVE_ON_BACK_PRESSED_FILE_CODE, false);
                     }
                 })
                 .show();

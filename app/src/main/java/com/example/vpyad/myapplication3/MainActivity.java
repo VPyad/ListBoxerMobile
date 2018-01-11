@@ -1,43 +1,42 @@
 package com.example.vpyad.myapplication3;
 
-import android.Manifest;
-import android.content.Intent;
+import android.content.Context;
 import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.DialogAction;
-import com.afollestad.materialdialogs.MaterialDialog;
+import com.example.vpyad.myapplication3.adapters.ItemsListAdapter;
 import com.example.vpyad.myapplication3.helpers.RequestPermissionHelper;
 import com.example.vpyad.myapplication3.helpers.StorageHelper;
 import com.example.vpyad.myapplication3.helpers.StringValidatorHelper;
 import com.example.vpyad.myapplication3.models.ListConfig;
+import com.example.vpyad.myapplication3.models.ListItem;
 import com.example.vpyad.myapplication3.providers.DialogProvider;
 import com.example.vpyad.myapplication3.providers.ListConfigProvider;
 import com.example.vpyad.myapplication3.providers.IDialogProviderCallback;
 import com.example.vpyad.myapplication3.providers.LocalStorageProvider;
-import com.github.angads25.filepicker.controller.DialogSelectionListener;
-import com.github.angads25.filepicker.model.DialogConfigs;
-import com.github.angads25.filepicker.model.DialogProperties;
-import com.github.angads25.filepicker.view.FilePickerDialog;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-
-public class MainActivity extends AppCompatActivity implements IDialogProviderCallback {
+public class MainActivity extends AppCompatActivity implements IDialogProviderCallback, AdapterView.OnItemClickListener {
 
     private LocalStorageProvider localStorageProvider;
     private DialogProvider dialogProvider;
     private ListConfig listConfig;
+    private RecyclerView recyclerView;
+    private ItemsListAdapter itemsAdapter;
+    private EditText itemInputText;
+    private ListItem itemToDelete;
+    private boolean hasChange = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +52,34 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        recyclerView = findViewById(R.id.listRecyclerView);
+        itemInputText = findViewById(R.id.inputEditText);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        //addTrashItems2();
+        updateItemsAdapter();
+
+        //itemsAdapter.notifyDataSetChanged();
+    }
+
+    //TODO !!!Remove!!!
+    private void addTrashItems() {
+        listConfig.addToList(new ListItem("Apple"));
+        listConfig.addToList(new ListItem("Orange"));
+        listConfig.addToList(new ListItem("Apple1"));
+        listConfig.addToList(new ListItem("Orange!"));
+        listConfig.addToList(new ListItem("123"));
+        listConfig.addToList(new ListItem("456"));
+    }
+
+    private void addTrashItems2() {
+        listConfig.addToList(new ListItem("Apple"));
+        listConfig.addToList(new ListItem("Apricot"));
+        listConfig.addToList(new ListItem("Banana"));
+        listConfig.addToList(new ListItem("Blueberry"));
     }
 
     @Override
@@ -88,14 +115,13 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
                 saveToFile();
                 return true;
             case R.id.action_sort:
-                dialogProvider.showSortDialog(listConfig);
+                dialogProvider.showSortDialog(listConfig.getSort());
                 return true;
             case R.id.action_mode:
-                dialogProvider.showModeDialog(listConfig);
+                dialogProvider.showModeDialog(listConfig.getMode());
                 return true;
             case R.id.action_stat:
-                // TODO Edit when RecyclerView ready
-                dialogProvider.showStatsDialog(10, 5);
+                dialogProvider.showStatsDialog(listConfig.allItemsCount(), listConfig.filteredItemsCount());
                 return true;
             case R.id.action_clear_all:
                 dialogProvider.showClearAllDialog();
@@ -106,24 +132,15 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    }
-
-    @Override
     public void onListConfigCallback(ListConfig res, Integer code) {
         switch (code) {
             case DialogProvider.CREATE_NEW_LIST_CODE:
                 listConfig = res;
                 ListConfigProvider.setListConfigToDir(res, StorageHelper.getPathToSave(), MainActivity.this);
-                // TODO Create new list
-                break;
-            case DialogProvider.APPLY_MODE_CODE:
-                listConfig = res;
-                // TODO apply mode
-                break;
-            case DialogProvider.APPLY_SORT_CODE:
-                listConfig = res;
-                // TODO apply sort
+                hasChange = false;
+                updateItemsAdapter();
+                hideKeyboard();
+                clearInputText();
                 break;
         }
     }
@@ -137,17 +154,30 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
                     if (!saved) {
                         makeToast(getString(R.string.save_failed_text));
                     }
+                    hasChange = false;
                 }
                 dialogProvider.showFileChosserDialog();
                 break;
-            case DialogProvider.SAVE_FILE_CODE:
-                // TODO save file
-                break;
             case DialogProvider.DELETE_ITEM_CODE:
-                // TODO delete item from RecyclerView
+                if (commitAction && itemToDelete != null) {
+                    listConfig.removeItem(itemToDelete);
+                    hasChange = true;
+                    updateItemsAdapter();
+                }
                 break;
             case DialogProvider.CLEAR_ALL_CODE:
-                // TODO Clear all
+                listConfig.removeAll();
+                hasChange = true;
+                updateItemsAdapter();
+                break;
+            case DialogProvider.SAVE_ON_BACK_PRESSED_FILE_CODE:
+                if (commitAction) {
+                    saveToFile();
+                    hasChange = false;
+                    super.onBackPressed();
+                } else {
+                    super.onBackPressed();
+                }
                 break;
         }
     }
@@ -159,7 +189,11 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
                 ListConfig listConfig = ListConfigProvider.getListConfigFromDir(path);
                 if (listConfig != null) {
                     this.listConfig = listConfig;
+                    hasChange = false;
                     localStorageProvider.putString(LocalStorageProvider.CURRENT_LIST_PATH, path);
+                    updateItemsAdapter();
+                    hideKeyboard();
+                    clearInputText();
                 } else {
                     makeToast(getString(R.string.open_failed_text));
                 }
@@ -168,9 +202,23 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
     }
 
     @Override
+    public void onResultCodeCallback(int actionCode, int payloadCode) {
+        switch (actionCode) {
+            case DialogProvider.APPLY_MODE_CODE:
+                listConfig.setMode(payloadCode);
+                updateItemsAdapter();
+                break;
+            case DialogProvider.APPLY_SORT_CODE:
+                listConfig.setSort(payloadCode);
+                updateItemsAdapter();
+                break;
+        }
+    }
+
+    @Override
     public void onBackPressed() {
-        if (hasUnsaveData()) {
-            dialogProvider.showSaveFileDialog();
+        if (hasChange) {
+            dialogProvider.showSaveOnBackPressedFileDialog();
         } else {
             super.onBackPressed();
         }
@@ -178,10 +226,16 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
 
     @Override
     public void onPause() {
-        /*if(needToSave()){
-            ListConfigProvider.setListConfigToDir(listConfig, localStorageProvider.getString(LocalStorageProvider.CURRENT_LIST_PATH));
-        }*/
         super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        if (hasChange) {
+            saveToFile();
+            hasChange = false;
+        }
+        super.onStop();
     }
 
     @Override
@@ -194,6 +248,7 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
         if (localStorageProvider.getBool(LocalStorageProvider.WRITE_PERMISSION_KEY)) {
             if (ListConfigProvider.setListConfigToDir(listConfig, StorageHelper.getPathToSave(), MainActivity.this)) {
                 makeToast(getString(R.string.save_completed_text));
+                hasChange = false;
             } else {
                 makeToast(getString(R.string.save_failed_text));
             }
@@ -203,8 +258,8 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
     }
 
     private void openFile() {
-        if (hasUnsaveData()) {
-            dialogProvider.showOpenFileDialog();
+        if (hasChange) {
+            dialogProvider.saveOnOpenFileDialog();
         } else if (localStorageProvider.getBool(LocalStorageProvider.WRITE_PERMISSION_KEY)) {
             dialogProvider.showFileChosserDialog();
         } else {
@@ -216,17 +271,52 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
         Toast.makeText(getApplicationContext(), text, Toast.LENGTH_LONG).show();
     }
 
-    private boolean hasUnsaveData() {
-        ListConfig savedListConfig = ListConfigProvider.getListConfigFromDir(localStorageProvider.getString(LocalStorageProvider.CURRENT_LIST_PATH));
-
-        boolean isSavedNull = savedListConfig == null;
-
-        if (!isSavedNull) {
-            boolean eq = (listConfig.getList().containsAll(savedListConfig.getList()) && savedListConfig.getMode() == listConfig.getMode()
-                    && savedListConfig.getSort() == listConfig.getSort());
-            return !eq;
-        } else {
-            return false;
+    public void onAddItemButtonClicked(View view) {
+        if (!isInputLegal(itemInputText.getText().toString())) {
+            makeToast(getString(R.string.invalid_input));
+            return;
         }
+
+        listConfig.addToList(new ListItem(itemInputText.getText().toString()));
+        hasChange = true;
+        updateItemsAdapter();
+        listConfig.sortList();
+        recyclerView.scrollToPosition(listConfig.filteredItemsCount() - 1);
+        clearInputText();
+    }
+
+    private void updateItemsAdapter() {
+        itemsAdapter = new ItemsListAdapter(this, listConfig.getList());
+        recyclerView.setAdapter(itemsAdapter);
+        //recyclerView.swapAdapter(new ItemsListAdapter(this, listConfig.getList()), true);
+    }
+
+    private void hideKeyboard() {
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+    }
+
+    private void clearInputText() {
+        itemInputText.setText("");
+    }
+
+    private boolean isInputLegal(String s) {
+        switch (listConfig.getMode()) {
+            case ListConfig.MODE_ALPHABETIC:
+                return StringValidatorHelper.allLetters(s);
+            case ListConfig.MODE_MIXED:
+                return StringValidatorHelper.allLettersAndDigits(s);
+            case ListConfig.MODE_NUMERIC:
+                return StringValidatorHelper.allDigits(s);
+            default:
+                return false;
+        }
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+        itemToDelete = itemsAdapter.getItem(i);
+
+        dialogProvider.showDeleteItemDialog();
     }
 }

@@ -9,6 +9,8 @@ import com.example.vpyad.myapplication3.models.ListConfig;
 public interface IDialogProviderCallback {
     public void onListConfigCallback(ListConfig res, Integer code);
 
+    void onResultCodeCallback(int actionCode, int payloadCode);
+
     public void onYesNoCallback(Integer res, boolean commitAction);
 
     public void onFileChooserCallback(String path, Integer code);
