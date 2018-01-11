@@ -33,16 +33,7 @@ public class ExampleInstrumentedTest {
         assertEquals("com.example.vpyad.myapplication3", appContext.getPackageName());
     }
 
-    @Test
-    public void numericModeWithMixedInput() {
-        ListConfig listConfig = new ListConfig();
-        listConfig.setMode(ListConfig.MODE_NUMERIC);
-
-        String input = "Apple1";
-
-        assertEquals(false, listConfig.addToList(new ListItem(input)));
-    }
-
+    // region Numeric Mode test
     @Test
     public void numericModeWithNumericInput() {
         ListConfig listConfig = new ListConfig();
@@ -54,35 +45,80 @@ public class ExampleInstrumentedTest {
     }
 
     @Test
-    public void mixedModeWithIllegalInput() {
+    public void numericModeWithMixedInput() {
         ListConfig listConfig = new ListConfig();
-        listConfig.setMode(ListConfig.MODE_MIXED);
+        listConfig.setMode(ListConfig.MODE_NUMERIC);
 
-        String input = "!.?";
+        String input = "Apple1";
 
         assertEquals(false, listConfig.addToList(new ListItem(input)));
     }
 
+    @Test
+    public void numericModeWithAlphabeticInput() {
+        ListConfig listConfig = new ListConfig();
+        listConfig.setMode(ListConfig.MODE_NUMERIC);
+
+        String input = "Apple";
+
+        assertEquals(false, listConfig.addToList(new ListItem(input)));
+    }
+
+    @Test
+    public void numericModeWithIllegalInput() {
+        ListConfig listConfig = new ListConfig();
+        listConfig.setMode(ListConfig.MODE_NUMERIC);
+
+        String input = "!?Apple1";
+
+        assertEquals(false, listConfig.addToList(new ListItem(input)));
+    }
+
+    // endregion
+
+    // region Mixed Mode tests
     @Test
     public void mixedModeWithMixedInput() {
         ListConfig listConfig = new ListConfig();
         listConfig.setMode(ListConfig.MODE_MIXED);
 
-        String input = "Apple123";
+        String input = "Apple123Йо";
 
         assertEquals(true, listConfig.addToList(new ListItem(input)));
     }
 
     @Test
-    public void mixedModeWithMixedIllegalInput() {
+    public void mixedModeWithNumericInput() {
         ListConfig listConfig = new ListConfig();
         listConfig.setMode(ListConfig.MODE_MIXED);
 
-        String input = "!Apple123";
+        String input = "123";
+
+        assertEquals(true, listConfig.addToList(new ListItem(input)));
+    }
+
+    @Test
+    public void mixedModeWithAlphabeticInput() {
+        ListConfig listConfig = new ListConfig();
+        listConfig.setMode(ListConfig.MODE_MIXED);
+
+        String input = "ASDASD";
+
+        assertEquals(true, listConfig.addToList(new ListItem(input)));
+    }
+
+    @Test
+    public void mixedModeWithIllegalInput() {
+        ListConfig listConfig = new ListConfig();
+        listConfig.setMode(ListConfig.MODE_MIXED);
+
+        String input = "!.?QWf";
 
         assertEquals(false, listConfig.addToList(new ListItem(input)));
     }
+    // endregion
 
+    // region Alphabetic Mode tests
     @Test
     public void alphabeticModeWithAlphabeticInput() {
         ListConfig listConfig = new ListConfig();
@@ -91,6 +127,47 @@ public class ExampleInstrumentedTest {
         String input = "Qwerty";
 
         assertEquals(true, listConfig.addToList(new ListItem(input)));
+    }
+
+    @Test
+    public void alphabeticModeWithNumericInput() {
+        ListConfig listConfig = new ListConfig();
+        listConfig.setMode(ListConfig.MODE_ALPHABETIC);
+
+        String input = "12121";
+
+        assertEquals(false, listConfig.addToList(new ListItem(input)));
+    }
+
+    @Test
+    public void alphabeticModeWithMixedInput() {
+        ListConfig listConfig = new ListConfig();
+        listConfig.setMode(ListConfig.MODE_ALPHABETIC);
+
+        String input = "123Apple";
+
+        assertEquals(false, listConfig.addToList(new ListItem(input)));
+    }
+
+    @Test
+    public void alphabeticModeWithIllegalInput() {
+        ListConfig listConfig = new ListConfig();
+        listConfig.setMode(ListConfig.MODE_ALPHABETIC);
+
+        String input = "!?.(Apple";
+
+        assertEquals(false, listConfig.addToList(new ListItem(input)));
+    }
+    // endregion
+
+    @Test
+    public void nullInput(){
+        ListConfig listConfig = new ListConfig();
+        listConfig.setMode(ListConfig.MODE_MIXED);
+
+        String input = "Qwerty";
+
+        assertEquals(false, listConfig.addToList(null));
     }
 
     @Test
@@ -269,7 +346,7 @@ public class ExampleInstrumentedTest {
     }
 
     @Test
-    public void modeAlpabeticSortDesc() {
+    public void modeAlphabeticSortDesc() {
         ListConfig listConfig = new ListConfig();
         listConfig.setSort(ListConfig.SORT_DESC);
         listConfig.setMode(ListConfig.MODE_ALPHABETIC);

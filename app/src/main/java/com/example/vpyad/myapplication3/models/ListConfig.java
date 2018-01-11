@@ -81,7 +81,10 @@ public class ListConfig implements Serializable {
     }
 
     public boolean addToList(ListItem item) {
-        if(isInputLegal(item.getItem())) {
+        if (item == null)
+            return false;
+
+        if (isInputLegal(item.getItem())) {
             list.add(item);
             defaultList.add(item);
             return true;
