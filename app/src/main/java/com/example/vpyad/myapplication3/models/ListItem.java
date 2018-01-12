@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 
 import com.example.vpyad.myapplication3.helpers.StringValidatorHelper;
 
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Comparator;
 
@@ -83,4 +84,17 @@ public class ListItem implements Serializable {
         }
 
     };
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+
+        if (!(obj instanceof ListItem))
+            return false;
+
+        ListItem item = (ListItem) obj;
+
+        return this.item.equals(item.item) && this.mode == item.mode;
+    }
 }

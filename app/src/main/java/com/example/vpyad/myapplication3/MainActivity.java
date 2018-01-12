@@ -272,17 +272,15 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
     }
 
     public void onAddItemButtonClicked(View view) {
-        if (!isInputLegal(itemInputText.getText().toString())) {
+        if (listConfig.addToList(new ListItem(itemInputText.getText().toString()))) {
+            hasChange = true;
+            updateItemsAdapter();
+            listConfig.sortList();
+            recyclerView.scrollToPosition(listConfig.filteredItemsCount() - 1);
+            clearInputText();
+        } else {
             makeToast(getString(R.string.invalid_input));
-            return;
         }
-
-        listConfig.addToList(new ListItem(itemInputText.getText().toString()));
-        hasChange = true;
-        updateItemsAdapter();
-        listConfig.sortList();
-        recyclerView.scrollToPosition(listConfig.filteredItemsCount() - 1);
-        clearInputText();
     }
 
     private void updateItemsAdapter() {
@@ -298,19 +296,6 @@ public class MainActivity extends AppCompatActivity implements IDialogProviderCa
 
     private void clearInputText() {
         itemInputText.setText("");
-    }
-
-    private boolean isInputLegal(String s) {
-        switch (listConfig.getMode()) {
-            case ListConfig.MODE_ALPHABETIC:
-                return StringValidatorHelper.allLetters(s);
-            case ListConfig.MODE_MIXED:
-                return StringValidatorHelper.allLettersAndDigits(s);
-            case ListConfig.MODE_NUMERIC:
-                return StringValidatorHelper.allDigits(s);
-            default:
-                return false;
-        }
     }
 
     @Override

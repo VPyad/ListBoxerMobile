@@ -1,5 +1,7 @@
 package com.example.vpyad.myapplication3.models;
 
+import com.example.vpyad.myapplication3.helpers.StringValidatorHelper;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -78,9 +80,17 @@ public class ListConfig implements Serializable {
         return list;
     }
 
-    public void addToList(ListItem item) {
-        list.add(item);
-        defaultList.add(item);
+    public boolean addToList(ListItem item) {
+        if (item == null)
+            return false;
+
+        if (isInputLegal(item.getItem())) {
+            list.add(item);
+            defaultList.add(item);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public boolean removeItem(ListItem item) {
@@ -111,8 +121,7 @@ public class ListConfig implements Serializable {
         if (mode == ListConfig.MODE_MIXED && sort == ListConfig.SORT_NO_SORT) {
             list.clear();
             list.addAll(defaultList);
-        }
-        else {
+        } else {
             switch (sortType) {
                 case SORT_ASC:
                     Collections.sort(list, ListItem.itemComparator);
@@ -146,5 +155,18 @@ public class ListConfig implements Serializable {
     public void removeAll() {
         defaultList.clear();
         list.clear();
+    }
+
+    public boolean isInputLegal(String s) {
+        switch (mode) {
+            case ListConfig.MODE_ALPHABETIC:
+                return StringValidatorHelper.allLetters(s);
+            case ListConfig.MODE_MIXED:
+                return StringValidatorHelper.allLettersAndDigits(s);
+            case ListConfig.MODE_NUMERIC:
+                return StringValidatorHelper.allDigits(s);
+            default:
+                return false;
+        }
     }
 }
