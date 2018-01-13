@@ -40,8 +40,13 @@ public class ExampleInstrumentedTest {
         listConfig.setMode(ListConfig.MODE_NUMERIC);
 
         String input = "123";
+        ListItem item = new ListItem(input);
 
-        assertEquals(true, listConfig.addToList(new ListItem(input)));
+        boolean isAdded = listConfig.addToList(item);
+        boolean fact = listConfig.getList().contains(item);
+
+        assertEquals(true, isAdded);
+        assertEquals(true, fact);
     }
 
     @Test
@@ -50,8 +55,13 @@ public class ExampleInstrumentedTest {
         listConfig.setMode(ListConfig.MODE_NUMERIC);
 
         String input = "Apple1";
+        ListItem item = new ListItem(input);
 
-        assertEquals(false, listConfig.addToList(new ListItem(input)));
+        boolean isAdded = listConfig.addToList(item);
+        boolean fact = listConfig.getList().contains(item);
+
+        assertEquals(false, isAdded);
+        assertEquals(false, fact);
     }
 
     @Test
@@ -60,8 +70,13 @@ public class ExampleInstrumentedTest {
         listConfig.setMode(ListConfig.MODE_NUMERIC);
 
         String input = "Apple";
+        ListItem item = new ListItem(input);
 
-        assertEquals(false, listConfig.addToList(new ListItem(input)));
+        boolean isAdded = listConfig.addToList(item);
+        boolean fact = listConfig.getList().contains(item);
+
+        assertEquals(fact, isAdded);
+        assertEquals(false, fact);
     }
 
     @Test
@@ -70,8 +85,13 @@ public class ExampleInstrumentedTest {
         listConfig.setMode(ListConfig.MODE_NUMERIC);
 
         String input = "!?Apple1";
+        ListItem item = new ListItem(input);
 
-        assertEquals(false, listConfig.addToList(new ListItem(input)));
+        boolean isAdded = listConfig.addToList(item);
+        boolean fact = listConfig.getList().contains(item);
+
+        assertEquals(fact, isAdded);
+        assertEquals(false, fact);
     }
 
     // endregion
@@ -83,8 +103,13 @@ public class ExampleInstrumentedTest {
         listConfig.setMode(ListConfig.MODE_MIXED);
 
         String input = "Apple123Йо";
+        ListItem item = new ListItem(input);
 
-        assertEquals(true, listConfig.addToList(new ListItem(input)));
+        boolean isAdded = listConfig.addToList(item);
+        boolean fact = listConfig.getList().contains(item);
+
+        assertEquals(true, isAdded);
+        assertEquals(true, fact);
     }
 
     @Test
@@ -93,8 +118,13 @@ public class ExampleInstrumentedTest {
         listConfig.setMode(ListConfig.MODE_MIXED);
 
         String input = "123";
+        ListItem item = new ListItem(input);
 
-        assertEquals(true, listConfig.addToList(new ListItem(input)));
+        boolean isAdded = listConfig.addToList(item);
+        boolean fact = listConfig.getList().contains(item);
+
+        assertEquals(fact, isAdded);
+        assertEquals(true, fact);
     }
 
     @Test
@@ -103,8 +133,13 @@ public class ExampleInstrumentedTest {
         listConfig.setMode(ListConfig.MODE_MIXED);
 
         String input = "ASDASD";
+        ListItem item = new ListItem(input);
 
-        assertEquals(true, listConfig.addToList(new ListItem(input)));
+        boolean isAdded = listConfig.addToList(item);
+        boolean fact = listConfig.getList().contains(item);
+
+        assertEquals(fact, isAdded);
+        assertEquals(true, fact);
     }
 
     @Test
@@ -113,8 +148,13 @@ public class ExampleInstrumentedTest {
         listConfig.setMode(ListConfig.MODE_MIXED);
 
         String input = "!.?QWf";
+        ListItem item = new ListItem(input);
 
-        assertEquals(false, listConfig.addToList(new ListItem(input)));
+        boolean isAdded = listConfig.addToList(item);
+        boolean fact = listConfig.getList().contains(item);
+
+        assertEquals(false, isAdded);
+        assertEquals(false, fact);
     }
     // endregion
 
@@ -125,8 +165,13 @@ public class ExampleInstrumentedTest {
         listConfig.setMode(ListConfig.MODE_ALPHABETIC);
 
         String input = "Qwerty";
+        ListItem item = new ListItem(input);
 
-        assertEquals(true, listConfig.addToList(new ListItem(input)));
+        boolean isAdded = listConfig.addToList(item);
+        boolean fact = listConfig.getList().contains(item);
+
+        assertEquals(true, isAdded);
+        assertEquals(true, fact);
     }
 
     @Test
@@ -135,8 +180,13 @@ public class ExampleInstrumentedTest {
         listConfig.setMode(ListConfig.MODE_ALPHABETIC);
 
         String input = "12121";
+        ListItem item = new ListItem(input);
 
-        assertEquals(false, listConfig.addToList(new ListItem(input)));
+        boolean isAdded = listConfig.addToList(item);
+        boolean fact = listConfig.getList().contains(item);
+
+        assertEquals(false, isAdded);
+        assertEquals(false, fact);
     }
 
     @Test
@@ -145,8 +195,13 @@ public class ExampleInstrumentedTest {
         listConfig.setMode(ListConfig.MODE_ALPHABETIC);
 
         String input = "123Apple";
+        ListItem item = new ListItem(input);
 
-        assertEquals(false, listConfig.addToList(new ListItem(input)));
+        boolean isAdded = listConfig.addToList(item);
+        boolean fact = listConfig.getList().contains(item);
+
+        assertEquals(false, isAdded);
+        assertEquals(false, fact);
     }
 
     @Test
@@ -155,19 +210,29 @@ public class ExampleInstrumentedTest {
         listConfig.setMode(ListConfig.MODE_ALPHABETIC);
 
         String input = "!?.(Apple";
+        ListItem item = new ListItem(input);
 
-        assertEquals(false, listConfig.addToList(new ListItem(input)));
+        boolean isAdded = listConfig.addToList(item);
+        boolean fact = listConfig.getList().contains(item);
+
+        assertEquals(false, isAdded);
+        assertEquals(false, fact);
     }
     // endregion
 
     @Test
-    public void nullInput(){
+    public void nullInput() {
         ListConfig listConfig = new ListConfig();
         listConfig.setMode(ListConfig.MODE_MIXED);
 
         String input = "Qwerty";
+        ListItem item = new ListItem(input);
 
-        assertEquals(false, listConfig.addToList(null));
+        boolean isAdded = listConfig.addToList(null);
+        boolean fact = listConfig.getList().contains(item);
+
+        assertEquals(false, isAdded);
+        assertEquals(false, fact);
     }
 
     @Test
